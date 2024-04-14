@@ -10,11 +10,17 @@
 (define-minor-mode org-elo-mode "org elo mode"
   :lighter " Э") ;; CYRILLIC CAPITAL LETTER E
 
+(defun org-elo-compare-tabulated (item1 item2)
+  "compare tabulated items by rating"
+  (let* ((elo1 (string-to-number (car (aref (cadr item1) 0))))
+         (elo2 (string-to-number (car (aref (cadr item2) 0)))))
+    (< elo1 elo2)))
+
 (define-derived-mode org-elo-list-top-mode tabulated-list-mode "Elo Top"
   "Elo Top"
   (setq truncate-lines t)
   (setq buffer-read-only t)
-  (setq tabulated-list-format [("rating" 6 t)
+  (setq tabulated-list-format [("rating" 6 org-elo-compare-tabulated)
 			       ("title" 28 t)
                                ("updated" 12 t)])
   (setq tabulated-list-sort-key
