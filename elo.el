@@ -34,25 +34,23 @@
 (defun org-elo-list-top (buf)
   "Display elo top for BUF."
   (interactive "b")
-  (let ((source-buffer buf)
-        (elo-buf (get-buffer-create "*Org Elo Top*")))
+  (let ((elo-buf
+         (get-buffer-create
+          (format
+           "*Org Elo Top for %s*"
+           (buffer-name (get-buffer buf))))))
     (switch-to-buffer elo-buf)
-    (with-current-buffer elo-buf ;; TODO:
-      (org-elo-list-top-mode)
-      (set (make-variable-buffer-local 'elo-source-buffer) buf)
-      (setq-local elo-source-buffer buf)
-      (org-elo-list-top-refresh))))
+    (org-elo-list-top-mode)
+    (set (make-variable-buffer-local 'elo-source-buffer) buf)
+    (setq-local elo-source-buffer buf)
+    (org-elo-list-top-refresh)))
 
 (defun org-elo-list-top-refresh ()
   "Refresh elo top."
-  (let* ((src-buf
-         (buffer-local-value
-          'elo-source-buffer
-          (current-buffer)))
-        (entries
-         (save-excursion
-           (with-current-buffer src-buf
-             (org-map-entries #'org-elo-tabulate)))))
+  (let* ((entries
+          (save-excursion
+            (with-current-buffer elo-source-buffer
+              (org-map-entries #'org-elo-tabulate)))))
   (setq tabulated-list-entries entries)
   (tabulated-list-init-header)
   (tabulated-list-print)))
