@@ -3,7 +3,19 @@
 ;;; TODO:
 ;;; Code:
 
-
+(defun org-elo-get-alist ()
+  (interactive)
+  (let* ((id (org-entry-get (point) "ID"))
+         (elo (org-entry-get (point) "ELO" :inherit t))
+         (title (org-entry-get (point) "ITEM"))
+         (update (org-entry-get (point) "ELO_UPDATE" :inherit t))
+         (fights (org-entry-get (point) "ELO_FIGHTS" :inherit t)))
+    `((id . ,id)
+      (elo . ,elo)
+      (title . ,title)
+      (update . ,update)
+      (fights . ,fights))))
+
 (defun org-elo-compare-tabulated (item1 item2)
   "compare tabulated items by rating"
   (let* ((elo1 (string-to-number (car (aref (cadr item1) 0))))
@@ -59,18 +71,6 @@
       (list .title)
       (list .update)))))
 
-(defun org-elo-get-alist ()
-  (interactive)
-  (let* ((id (org-entry-get (point) "ID" :inherit t))
-         (elo (org-entry-get (point) "ELO" :inherit t))
-         (title (org-entry-get (point) "ITEM"))
-         (update (org-entry-get (point) "ELO_UPDATE" :inherit t))
-         (fights (org-entry-get (point) "ELO_FIGHTS" :inherit t)))
-    `((id . ,id)
-      (elo . ,elo)
-      (title . ,title)
-      (update . ,update)
-      (fights . ,fights))))
 
 (defvar org-elo-fight-mode-map
   (let ((map (make-sparse-keymap)))
