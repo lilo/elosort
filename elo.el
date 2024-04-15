@@ -1,9 +1,8 @@
-;; for headings in current org file
-;; properties: elo-games, elo-rating, elo-last
-;; elo-tournament-judge (&optional N)
-;; elo-list-top
-;; 
-;; 
+;;; package --- elo.el -*- lexical-binding:t; coding:utf-8 -*-
+;;; Commentary:
+;;; TODO:
+;;; Code:
+
 
 (defun org-elo-compare-tabulated (item1 item2)
   "compare tabulated items by rating"
