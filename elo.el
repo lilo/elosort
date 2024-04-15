@@ -51,7 +51,7 @@
 
 (defun org-elo-tabulate ()
   "tabulate"
-  (let-alist (org-elo-get-elo)
+  (let-alist (org-elo-get-alist)
     (list
      nil ;; id
      (vector
@@ -59,11 +59,15 @@
       (list .title)
       (list .update)))))
 
-(defun org-elo-get-elo ()
+(defun org-elo-get-alist ()
   (interactive)
-  (let* ((elo (org-entry-get (point) "ELO" :inherit t))
+  (let* ((id (org-entry-get (point) "ID" :inherit t))
+         (elo (org-entry-get (point) "ELO" :inherit t))
          (title (org-entry-get (point) "ITEM"))
-         (update (org-entry-get (point) "ELO_UPDATE" :inherit t)))
-    `((elo . ,elo)
+         (update (org-entry-get (point) "ELO_UPDATE" :inherit t))
+         (fights (org-entry-get (point) "ELO_FIGHTS" :inherit t)))
+    `((id . ,id)
+      (elo . ,elo)
       (title . ,title)
-      (update . ,update))))
+      (update . ,update)
+      (fights . ,fights))))
