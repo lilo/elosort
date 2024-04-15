@@ -5,11 +5,6 @@
 ;; 
 ;; 
 
-(require 'org-ql)
-
-(define-minor-mode org-elo-mode "org elo mode"
-  :lighter " Э") ;; CYRILLIC CAPITAL LETTER E
-
 (defun org-elo-compare-tabulated (item1 item2)
   "compare tabulated items by rating"
   (let* ((elo1 (string-to-number (car (aref (cadr item1) 0))))
