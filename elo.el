@@ -71,3 +71,78 @@
       (title . ,title)
       (update . ,update)
       (fights . ,fights))))
+
+(defvar org-elo-fight-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") #'org-elo-fight-win1)
+    (define-key map (kbd ",") #'org-elo-fight-win1)
+    (define-key map (kbd ".") #'org-elo-fight-win2)
+    (define-key map (kbd "g") #'org-elo-fight-revert)
+    map))
+
+(defun org-elo-fight-win2 ()
+  (interactive)
+  (message "win2"))
+
+(defun org-elo-fight-win1 ()
+  (interactive)
+  (let* ((p1-elo )))
+  (progn
+    ;; compute ratings for both
+    ;; set new ratings for both
+    ;; update date of last fight
+    ;; append opponent's id to the list of fights
+    ))
+
+(define-derived-mode org-elo-fight-mode special-mode "org-elo-fight-mode"
+  "Fight!"
+  (setq buffer-read-only t)
+  (defvar-local org-elo-buf nil)
+  (defvar-local org-elo-p1 nil "Candidate #1")
+  (defvar-local org-elo-p2 nil "Candidate #2"))
+
+(put 'org-elo-fight-mode 'mode-class 'special)
+
+(defun org-elo-next-pair (buf)
+  "Return (cons item1 item2) from BUF."
+  (with-current-buffer buf
+    (let* ((entries (org-map-entries #'org-elo-get-alist))
+           (p1 (seq-random-elt entries))
+           (p2 (seq-random-elt entries)))
+      (cons p1 p2))))
+
+(defun org-elo-fight-revert ()
+  "Refresh buffer, get next candidates."
+  (interactive)
+  (let* ((inhibit-read-only t)
+         (pair (org-elo-next-pair org-elo-buf))
+         (p1 (car pair))
+         (p1-id (let-alist p1 .id))
+         (p1-elo (let-alist p1 .elo))
+         (p1-title (let-alist p1 .title))
+         (p2 (cdr pair))
+         (p2-id (let-alist p2 .id))
+         (p2-elo (let-alist p2 .elo))
+         (p2-title (let-alist p2 .title)))
+    (setq-local org-elo-p1 p1)
+    (setq-local org-elo-p2 p2)
+    (delete-region (point-min) (point-max))
+    (insert (format "Is %s > %s?\n" p1-title p2-title))))
+
+(defun org-elo-fight (buf)
+  "Display elo fight for BUF."
+  (interactive "b")
+  (let ((inhibit-read-only t)
+        (fight-buf
+         (get-buffer-create
+          (format
+           "*Org Elo fight %s*"
+           (buffer-name (get-buffer buf))))))
+    (pop-to-buffer-same-window fight-buf)
+    (with-current-buffer fight-buf
+      (org-elo-fight-mode)
+      (set (make-variable-buffer-local 'org-elo-buf) buf)
+      (setq-local org-elo-buf buf)
+      (org-elo-fight-revert))))
+
+(provide 'org-elo)
