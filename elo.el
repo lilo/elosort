@@ -74,13 +74,14 @@
 
 (defun org-elo-tabulate ()
   "tabulate"
-  (let-alist (org-elo-get-alist)
-    (list
-     nil ;; id
-     (vector
-      (list .elo)
-      (list .title)
-      (list .update)))))
+  (let ((alist (org-elo-get-alist)))
+    (let-alist alist
+      (list
+       alist
+       (vector
+        (list .elo)
+        (list .title)
+        (list .update))))))
 
 
 (defvar org-elo-fight-mode-map
