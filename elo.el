@@ -6,6 +6,9 @@
 (defcustom org-elo-k 20
   "The K.")
 
+(defcustom org-elo-starting-elo 1200
+  "Starting elo.")
+
 (defun org-elo-compute-elo (winner loser &optional k)
   (let* ((k (or k org-elo-k))
          (p1 (/ 1.0 (+ 1.0 (expt 10 (/ (- loser winner) 400.0)))))
