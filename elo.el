@@ -2,6 +2,17 @@
 ;;; Commentary:
 ;;; TODO:
 ;;; Code:
+
+(defcustom org-elo-k 20
+  "The K.")
+
+(defun org-elo-compute-elo (winner loser &optional k)
+  (let* ((k (or k org-elo-k))
+         (p1 (/ 1.0 (+ 1.0 (expt 10 (/ (- loser winner) 400.0)))))
+         (w (+ winner (* k (- 1 p1))))
+         (p2 (/ 1.0 (+ 1.0 (expt 10 (/ (- winner loser) 400.0)))))
+         (l (+ loser (* k (- 0 p2)))))
+    (cons w l)))
 
 (defun org-elo-get-alist ()
   (interactive)
