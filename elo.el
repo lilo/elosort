@@ -1,6 +1,8 @@
 ;;; package --- elo.el -*- lexical-binding:t; coding:utf-8 -*-
 ;;; Commentary:
+;;; - 
 ;;; TODO:
+;;; round elo to int
 ;;; Code:
 
 (defcustom org-elo-k 20
@@ -10,6 +12,7 @@
   "Starting elo.")
 
 (defun org-elo-compute-elo (winner loser &optional k)
+  "Compute new elo for WINNER and LOSER using K."
   (let* ((k (or k org-elo-k))
          (p1 (/ 1.0 (+ 1.0 (expt 10 (/ (- loser winner) 400.0)))))
          (w (+ winner (* k (- 1 p1))))
@@ -18,6 +21,7 @@
     (cons w l)))
 
 (defun org-elo-get-alist ()
+  "Current entry as alist."
   (interactive)
   (let* ((id (org-entry-get (point) "ID"))
          (elo (or (org-entry-get (point) "ELO") org-elo-starting-elo))
@@ -31,7 +35,7 @@
       (fights . ,fights))))
 
 (defun org-elo-compare-tabulated (item1 item2)
-  "compare tabulated items by rating"
+  "Compare tabulated items by rating"
   (let* ((elo1 (string-to-number (car (aref (cadr item1) 0))))
          (elo2 (string-to-number (car (aref (cadr item2) 0)))))
     (< elo1 elo2)))
@@ -76,7 +80,7 @@
   (tabulated-list-print)))
 
 (defun org-elo-tabulate ()
-  "tabulate"
+  "Item alist as tabulated-list entry."
   (let ((alist (org-elo-get-alist)))
     (let-alist alist
       (list
@@ -93,7 +97,8 @@
     (define-key map (kbd ",") #'org-elo-fight-win1)
     (define-key map (kbd ".") #'org-elo-fight-win2)
     (define-key map (kbd "g") #'org-elo-fight-revert)
-    map))
+    map)
+  "Fight mode keymap.")
 
 (defun org-elo-fight-win2 ()
   (interactive)
