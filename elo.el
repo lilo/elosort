@@ -94,7 +94,7 @@
 
 (defvar org-elo-fight-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") #'org-elo-fight-win1)
+    ;; (define-key map (kbd "RET") #'org-elo-fight-win1)
     (define-key map (kbd ",") #'org-elo-fight-win1)
     (define-key map (kbd ".") #'org-elo-fight-win2)
     (define-key map (kbd "g") #'org-elo-fight-revert)
