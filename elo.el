@@ -45,9 +45,9 @@
   "Elo Top"
   (setq truncate-lines t)
   (setq buffer-read-only t)
-  (setq tabulated-list-format [("rating" 6 org-elo-compare-tabulated)
-			       ("title" 28 t)
-                               ("updated" 12 t)])
+  (setq tabulated-list-format [("rating" 8 org-elo-compare-tabulated)
+			       ("title" 50 t)
+                               ("updated" 16 t)])
   (setq tabulated-list-sort-key
         (cons
          "rating"
