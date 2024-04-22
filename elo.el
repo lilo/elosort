@@ -24,16 +24,20 @@
   "Current entry as alist."
   (interactive)
   (let* ((pom (point))
-         (id (org-entry-get (pom) "ID"))
-         (elo (org-entry-get (pom) "ELO"))
-         (title (org-entry-get (pom) "ITEM"))
-         (update (org-entry-get (pom) "ELO_UPDATE"))
-         (fights (org-entry-get (pom) "ELO_FIGHTS")))
+         (id (org-entry-get pom "ID"))
+         (elo (org-entry-get pom "ELO"))
+         (title (org-entry-get pom "ITEM"))
+         (update (org-entry-get pom "ELO_UPDATE"))
+         (fights (org-entry-get-multivalued-property pom "ELO_FIGHTS"))
+         (num-fights (if (consp fights)
+                         (length fights)
+                       0)))
     `((id . ,id)
       (elo . ,elo)
       (title . ,title)
       (update . ,update)
-      (fights . ,fights))))
+      (fights . ,fights)
+      (num-fights . ,num-fights))))
 
 (defun org-elo-compare-tabulated (item1 item2)
   "Compare tabulated items by rating"
