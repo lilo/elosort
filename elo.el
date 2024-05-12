@@ -3,6 +3,7 @@
 ;;; - 
 ;;; TODO:
 ;;; round elo to int
+;;; customization of the list of items
 ;;; Code:
 
 (defcustom org-elo-k 20
