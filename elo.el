@@ -12,6 +12,11 @@
 (defcustom org-elo-starting-elo 1200
   "Starting elo.")
 
+(defcustom org-elo-file nil
+  "File with the list of contenders."
+  :type '(file :must-match t)
+  :group 'elo)
+
 (defun org-elo-compute-elo (winner loser &optional k)
   "Compute new elo for WINNER and LOSER using K."
   (let* ((k (or k org-elo-k))
@@ -222,8 +227,8 @@ shuffling is done in place."
     (pop-to-buffer-same-window fight-buf)
     (with-current-buffer fight-buf
       (org-elo-fight-mode)
-      (set (make-variable-buffer-local 'org-elo-buf) buf)
-      (setq-local org-elo-buf buf)
+      (set (make-variable-buffer-local 'org-elo-buf) buf) ;; either one
+      (setq-local org-elo-buf buf) ;; either one
       (org-elo-fight-revert))))
 
 (provide 'org-elo)
