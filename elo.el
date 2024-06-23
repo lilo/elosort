@@ -7,10 +7,12 @@
 ;;; Code:
 
 (defcustom org-elo-k 20
-  "The K.")
+  "The K."
+  :group 'elo)
 
 (defcustom org-elo-starting-elo 1200
-  "Starting elo.")
+  "Starting elo."
+  :group 'elo)
 
 (defcustom org-elo-file nil
   "File with the list of contenders."
