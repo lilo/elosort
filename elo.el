@@ -68,40 +68,38 @@
 
 (put 'org-elo-list-top-mode 'mode-class 'special)
 
-(defun org-elo-list-top (buf)
-  "Display elo top for BUF."
-  (interactive "b")
+(defun org-elo-list-top ()
+  "Display the score board."
+  (interactive)
   (let ((elo-buf
          (get-buffer-create
-          (format
-           "*Org Elo Top for %s*"
-           (buffer-name (get-buffer buf))))))
+           "*Org Elo Top")))
     (switch-to-buffer elo-buf)
     (org-elo-list-top-mode)
-    (set (make-variable-buffer-local 'elo-source-buffer) buf)
-    (setq-local elo-source-buffer buf)
+    (set (make-variable-buffer-local 'elo-source-buffer) elo-buf)
+    (setq-local elo-source-buffer elo-buf)
     (org-elo-list-top-refresh)))
 
 (defun org-elo-list-top-refresh ()
   "Refresh elo top."
   (let* ((entries
           (save-excursion
-            (with-current-buffer elo-source-buffer
-              (org-map-entries #'org-elo-tabulate)))))
-  (setq tabulated-list-entries entries)
-  (tabulated-list-init-header)
-  (tabulated-list-print)))
+            (with-current-buffer (find-file-noselect org-elo-file)
+              (org-map-entries
+               (lambda () (org-elo-tabulate (org-elo-get-alist))))))))
+    (setq tabulated-list-entries entries)
+    (tabulated-list-init-header)
+    (tabulated-list-print)))
 
-(defun org-elo-tabulate ()
+(defun org-elo-tabulate (alist)
   "Item alist as tabulated-list entry."
-  (let ((alist (org-elo-get-alist)))
-    (let-alist alist
-      (list
-       alist
-       (vector
-        (list (number-to-string .elo))
-        (list .title)
-        (list .update))))))
+  (let-alist alist
+    (list
+     alist
+     (vector
+      (list (number-to-string .elo))
+      (list .title)
+      (list .update)))))
 
 
 (defvar org-elo-fight-mode-map
@@ -141,7 +139,7 @@ Set elo and elo_update."
          (p2-new-elo (cdr new-elos))
          (date-str (format-time-string "%Y-%m-%d")))
     (save-excursion
-      (with-current-buffer org-elo-buf
+      (with-current-buffer org-elo-buf  ; TODO:
         (let* ((p1pom (org-id-find p1-id :marker))
                (p2pom (org-id-find p2-id :marker)))
           (org-entry-put p1pom "ELO" (number-to-string p1-new-elo))
@@ -162,9 +160,6 @@ Set elo and elo_update."
 
 (put 'org-elo-fight-mode 'mode-class 'special)
 
-
-
-
 ;;;
 (defun swap (LIST el1 el2)
   "in LIST swap indices EL1 and EL2 in place"
@@ -181,29 +176,30 @@ shuffling is done in place."
              (swap LIST i j)))
   LIST)
 
-(defun org-elo-next-pair (buf)
-  "Return (cons item1 item2) from BUF."
-  (with-current-buffer buf
-    (let* ((entries (shuffle (org-map-entries #'org-elo-get-alist)))
-           (sorted-entries
-            (sort
-             (copy-sequence entries)
-             (lambda (p1 p2)
-               (let ((p1-update (let-alist p1 .update))
-                     (p1-num (or (let-alist p1 .num-fights) 0))
-                     (p2-update (let-alist p2 .update))
-                     (p2-num (or (let-alist p2 .num-fights) 0)))
-                 (or (< p1-num p2-num)
-                     (when (= p1-num p2-num)
-                       (string-lessp p1-update p2-update))))))))
-      (seq-let (p1 p2 _) sorted-entries
-        (cons p1 p2)))))
+(defun org-elo-next-pair (items)
+  "Return (cons item1 item2) from items list."
+  (let* ((sorted-entries
+          (sort
+           (copy-sequence items)
+           (lambda (p1 p2)
+             (let ((p1-update (let-alist p1 .update))
+                   (p1-num (or (let-alist p1 .num-fights) 0))
+                   (p2-update (let-alist p2 .update))
+                   (p2-num (or (let-alist p2 .num-fights) 0)))
+               (or (< p1-num p2-num)
+                   (when (= p1-num p2-num)
+                     (string-lessp p1-update p2-update))))))))
+    (seq-let (p1 p2 _) sorted-entries
+      (cons p1 p2))))
 
 (defun org-elo-fight-revert ()
   "Refresh buffer, get next candidates."
   (interactive)
+  (save-excursion
+    (with-current-buffer (find-file-noselect org-elo-file)
+      (setq entries (shuffle (org-map-entries #'org-elo-get-alist)))))
   (let* ((inhibit-read-only t)
-         (pair (org-elo-next-pair org-elo-buf))
+         (pair (org-elo-next-pair entries))
          (p1 (car pair))
          (p1-id (let-alist p1 .id))
          (p1-elo (let-alist p1 .elo))
@@ -217,20 +213,18 @@ shuffling is done in place."
     (delete-region (point-min) (point-max))
     (insert (format "Is %s > %s?\n" p1-title p2-title))))
 
-(defun org-elo-fight (buf)
-  "Display elo fight for BUF."
-  (interactive "b")
-  (let ((inhibit-read-only t)
-        (fight-buf
+(defun org-elo-fight ()
+  "fight."
+  (interactive)
+  (let ((fight-buf
          (get-buffer-create
-          (format
-           "*Org Elo fight %s*"
-           (buffer-name (get-buffer buf))))))
+           "*Org Elo fight")))
     (pop-to-buffer-same-window fight-buf)
     (with-current-buffer fight-buf
+      (setq inhibit-read-only t)      
       (org-elo-fight-mode)
-      (set (make-variable-buffer-local 'org-elo-buf) buf) ;; either one
-      (setq-local org-elo-buf buf) ;; either one
+      (set (make-variable-buffer-local 'org-elo-buf) fight-buf) ;; either one
+      (setq-local org-elo-buf fight-buf) ;; either one
       (org-elo-fight-revert))))
 
 (provide 'org-elo)
