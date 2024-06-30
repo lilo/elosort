@@ -41,7 +41,7 @@
                          (length fights)
                        0)))
     `((id . ,id)
-      (elo . ,(when (stringp elo) (string-to-number elo)))
+      (elo . ,(if (stringp elo) (string-to-number elo) org-elo-starting-elo))
       (title . ,title)
       (update . ,update)
       (fights . ,fights)
