@@ -119,7 +119,7 @@
   (org-elo-fight-update t))
 
 (defun org-elo-fight-win2 ()
-  "Set p1 as winner and update"
+  "Set p2 as winner and update"
   (interactive)
   (org-elo-fight-update nil))
 
