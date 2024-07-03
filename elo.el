@@ -31,7 +31,7 @@
          (id (org-entry-get pom "ID"))
          (elo (org-entry-get pom "ELO"))
          (title (org-entry-get pom "ITEM"))
-         (fights (org-entry-get-multivalued-property pom "ELO_FIGHTS"))
+         (fights (org-entry-get-multivalued-property pom "ELO_FIGHTS")) ; TODO: plist (p1-id num-p1-p2-games ...)
          (num-fights (if (consp fights)
                          (length fights)
                        0)))
@@ -117,7 +117,6 @@
 (defun org-elo-fight-update (p1-winner-p)
   "Update records for current pair.
 Set elo."
-  ;(interactive)
   (let* ((p1 org-elo-p1)
          (p2 org-elo-p2)
          (p1-id (let-alist p1 .id))
@@ -134,7 +133,6 @@ Set elo."
                      (org-elo-compute-elo p2-elo p1-elo)))
          (p1-new-elo (if p1-winner-p (car new-elos) (cdr new-elos)))
          (p2-new-elo (if p1-winner-p (cdr new-elos) (car new-elos))))
-    (message "[%s]: %f [%s]: %f" p1-title (- p1-new-elo p1-elo) p2-title (- p2-new-elo p2-elo))
     (save-excursion
       (with-current-buffer (find-file-noselect org-elo-file)
         (let* ((p1pom (org-id-find p1-id :marker))
@@ -143,12 +141,10 @@ Set elo."
           (org-entry-put p1pom "ELO_FIGHTS" (if p1-fights
                                                 (mapconcat 'identity (append p1-fights (list p2-id)) " ")
                                               p2-id))
-          ; (org-entry-add-to-multivalued-property p1pom "ELO_FIGHTS" p2-id)
           (org-entry-put p2pom "ELO" (number-to-string p2-new-elo))
           (org-entry-put p2pom "ELO_FIGHTS" (if p2-fights
                                                 (mapconcat 'identity (append p2-fights (list p1-id)) " ")
                                               p1-id))
-          ;(org-entry-add-to-multivalued-property p2pom "ELO_FIGHTS" p1-id)
           (save-buffer)))))
   (org-elo-fight-revert))
 
