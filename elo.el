@@ -1,9 +1,5 @@
 ;;; package --- elo.el -*- lexical-binding:t; coding:utf-8 -*-
 ;;; Commentary:
-;;; - 
-;;; TODO:
-;;; round elo to int
-;;; customization of the list of items
 ;;; Code:
 
 (defcustom org-elo-k 20
@@ -19,9 +15,9 @@
   :type '(file :must-match t)
   :group 'elo)
 
-(defun org-elo-compute-elo (winner loser &optional k)
+(defun org-elo-compute-elo (winner loser) ; TODO: incorrect update
   "Compute new elo for WINNER and LOSER using K."
-  (let* ((k (or k org-elo-k))
+  (let* ((k org-elo-k)
          (p1 (/ 1.0 (+ 1.0 (expt 10 (/ (- loser winner) 400.0)))))
          (w (+ winner (* k (- 1 p1))))
          (p2 (/ 1.0 (+ 1.0 (expt 10 (/ (- winner loser) 400.0)))))
@@ -35,7 +31,6 @@
          (id (org-entry-get pom "ID"))
          (elo (org-entry-get pom "ELO"))
          (title (org-entry-get pom "ITEM"))
-         (update (org-entry-get pom "ELO_UPDATE"))
          (fights (org-entry-get-multivalued-property pom "ELO_FIGHTS"))
          (num-fights (if (consp fights)
                          (length fights)
@@ -43,14 +38,13 @@
     `((id . ,id)
       (elo . ,(if (stringp elo) (string-to-number elo) org-elo-starting-elo))
       (title . ,title)
-      (update . ,update)
       (fights . ,fights)
       (num-fights . ,num-fights))))
 
 (defun org-elo-compare-tabulated (item1 item2)
   "Compare tabulated items by rating"
-  (let* ((elo1 (string-to-number (car (aref (cadr item1) 0))))
-         (elo2 (string-to-number (car (aref (cadr item2) 0)))))
+  (let* ((elo1 (string-to-number (car (aref (cadr item1) 0)))) ; TODO: pattern matching
+         (elo2 (string-to-number (car (aref (cadr item2) 0))))) ; TODO: pattern matching
     (< elo1 elo2)))
 
 (define-derived-mode org-elo-list-top-mode tabulated-list-mode "Elo Top"
@@ -59,7 +53,7 @@
   (setq buffer-read-only t)
   (setq tabulated-list-format [("rating" 8 org-elo-compare-tabulated)
 			       ("title" 50 t)
-                               ("updated" 16 t)])
+                               ("num_games" 16 t)])
   (setq tabulated-list-sort-key
         (cons
          "rating"
@@ -76,7 +70,6 @@
            "*Org Elo Top")))
     (switch-to-buffer elo-buf)
     (org-elo-list-top-mode)
-    (set (make-variable-buffer-local 'elo-source-buffer) elo-buf)
     (setq-local elo-source-buffer elo-buf)
     (org-elo-list-top-refresh)))
 
@@ -99,7 +92,7 @@
      (vector
       (list (number-to-string .elo))
       (list .title)
-      (list .update)))))
+      (list (number-to-string .num-fights))))))
 
 
 (defvar org-elo-fight-mode-map
@@ -121,33 +114,41 @@
   (interactive)
   (org-elo-fight-update nil))
 
-(defun org-elo-fight-update (&optional p1-winner-p)
+(defun org-elo-fight-update (p1-winner-p)
   "Update records for current pair.
-Set elo and elo_update."
-  (interactive)
+Set elo."
+  ;(interactive)
   (let* ((p1 org-elo-p1)
          (p2 org-elo-p2)
          (p1-id (let-alist p1 .id))
          (p2-id (let-alist p2 .id))
+         (p1-title (let-alist p1 .title))
+         (p2-title (let-alist p2 .title))
+         (p1-fights (let-alist p1 .fights))
+         (p2-fights (let-alist p2 .fights))
          (p1-elo (or (let-alist p1 .elo) org-elo-starting-elo))
          (p2-elo (or (let-alist p2 .elo) org-elo-starting-elo))
          (new-elos (if
                        p1-winner-p
                        (org-elo-compute-elo p1-elo p2-elo)
                      (org-elo-compute-elo p2-elo p1-elo)))
-         (p1-new-elo (car new-elos))
-         (p2-new-elo (cdr new-elos))
-         (date-str (format-time-string "%Y-%m-%d")))
+         (p1-new-elo (if p1-winner-p (car new-elos) (cdr new-elos)))
+         (p2-new-elo (if p1-winner-p (cdr new-elos) (car new-elos))))
+    (message "[%s]: %f [%s]: %f" p1-title (- p1-new-elo p1-elo) p2-title (- p2-new-elo p2-elo))
     (save-excursion
-      (with-current-buffer org-elo-buf  ; TODO:
+      (with-current-buffer (find-file-noselect org-elo-file)
         (let* ((p1pom (org-id-find p1-id :marker))
                (p2pom (org-id-find p2-id :marker)))
           (org-entry-put p1pom "ELO" (number-to-string p1-new-elo))
-          (org-entry-put p1pom "ELO_UPDATE" date-str)
-          (org-entry-add-to-multivalued-property p1pom "ELO_FIGHTS" p2-id)
+          (org-entry-put p1pom "ELO_FIGHTS" (if p1-fights
+                                                (mapconcat 'identity (append p1-fights (list p2-id)) " ")
+                                              p2-id))
+          ; (org-entry-add-to-multivalued-property p1pom "ELO_FIGHTS" p2-id)
           (org-entry-put p2pom "ELO" (number-to-string p2-new-elo))
-          (org-entry-put p2pom "ELO_UPDATE" date-str)
-          (org-entry-add-to-multivalued-property p2pom "ELO_FIGHTS" p1-id)
+          (org-entry-put p2pom "ELO_FIGHTS" (if p2-fights
+                                                (mapconcat 'identity (append p2-fights (list p1-id)) " ")
+                                              p1-id))
+          ;(org-entry-add-to-multivalued-property p2pom "ELO_FIGHTS" p1-id)
           (save-buffer)))))
   (org-elo-fight-revert))
 
@@ -178,19 +179,25 @@ shuffling is done in place."
 
 (defun org-elo-next-pair (items)
   "Return (cons item1 item2) from items list."
-  (let* ((sorted-entries
-          (sort
-           (copy-sequence items)
-           (lambda (p1 p2)
-             (let ((p1-update (let-alist p1 .update))
-                   (p1-num (or (let-alist p1 .num-fights) 0))
-                   (p2-update (let-alist p2 .update))
-                   (p2-num (or (let-alist p2 .num-fights) 0)))
-               (or (< p1-num p2-num)
-                   (when (= p1-num p2-num)
-                     (string-lessp p1-update p2-update))))))))
-    (seq-let (p1 p2 _) sorted-entries
-      (cons p1 p2))))
+  (let* ((entries (copy-sequence items))
+         (sorted
+          (sort entries
+                (lambda (a b)
+                  (< (let-alist a .num-fights)
+                     (let-alist b .num-fights)))))
+         (p1 (car sorted))
+         (p1-id (let-alist p1 .id))
+         (but-p1 (cdr sorted))
+         (p2 (car (sort but-p1
+                        (lambda (a b)
+                          (let* ((afs (let-alist a
+                                       (cl-count
+                                        p1-id .fights :test #'string-equal)))
+                                 (bfs (let-alist b
+                                        (cl-count
+                                         p1-id .fights :test #'string-equal))))
+                            (< afs bfs)))))))
+    (cons p1 p2)))
 
 (defun org-elo-fight-revert ()
   "Refresh buffer, get next candidates."
@@ -223,8 +230,7 @@ shuffling is done in place."
     (with-current-buffer fight-buf
       (setq inhibit-read-only t)      
       (org-elo-fight-mode)
-      (set (make-variable-buffer-local 'org-elo-buf) fight-buf) ;; either one
-      (setq-local org-elo-buf fight-buf) ;; either one
+      (setq-local org-elo-buf fight-buf)
       (org-elo-fight-revert))))
 
 (provide 'org-elo)
