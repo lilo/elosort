@@ -55,9 +55,7 @@
 			       ("title" 50 t)
                                ("num_games" 16 t)])
   (setq tabulated-list-sort-key
-        (cons
-         "rating"
-         t)) ;; inverted
+        (cons "rating" :inverted))
   (add-hook 'tabulated-list-revert-hook #'org-elo-list-top-refresh nil t))
 
 (put 'org-elo-list-top-mode 'mode-class 'special)
