@@ -43,8 +43,8 @@
 
 (defun org-elo-compare-tabulated (item1 item2)
   "Compare tabulated items by rating"
-  (let* ((elo1 (string-to-number (car (aref (cadr item1) 0)))) ; TODO: pattern matching
-         (elo2 (string-to-number (car (aref (cadr item2) 0))))) ; TODO: pattern matching
+  (let ((elo1 (pcase item1 (`(,id ,_) (let-alist id .elo))))
+        (elo2 (pcase item2 (`(,id ,_) (let-alist id .elo)))))
     (< elo1 elo2)))
 
 (define-derived-mode org-elo-list-top-mode tabulated-list-mode "Elo Top"
