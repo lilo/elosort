@@ -15,7 +15,7 @@
   :type '(file :must-match t)
   :group 'elo)
 
-(defun org-elo-compute-elo (winner loser) ; TODO: incorrect update
+(defun org-elo-compute-elo (winner loser)
   "Compute new elo for WINNER and LOSER using K."
   (let* ((k org-elo-k)
          (p1 (/ 1.0 (+ 1.0 (expt 10 (/ (- loser winner) 400.0)))))
@@ -31,7 +31,8 @@
          (id (org-entry-get pom "ID"))
          (elo (org-entry-get pom "ELO"))
          (title (org-entry-get pom "ITEM"))
-         (fights (org-entry-get-multivalued-property pom "ELO_FIGHTS")) ; TODO: plist (p1-id num-p1-p2-games ...)
+         ;; TODO: plist (p1-id num-p1-p2-games ...)
+         (fights (org-entry-get-multivalued-property pom "ELO_FIGHTS"))
          (num-fights (if (consp fights)
                          (length fights)
                        0)))
@@ -144,13 +145,19 @@ Set elo."
         (let* ((p1pom (org-id-find p1-id :marker))
                (p2pom (org-id-find p2-id :marker)))
           (org-entry-put p1pom "ELO" (number-to-string p1-new-elo))
-          (org-entry-put p1pom "ELO_FIGHTS" (if p1-fights
-                                                (mapconcat 'identity (append p1-fights (list p2-id)) " ")
-                                              p2-id))
+          (org-entry-put p1pom "ELO_FIGHTS"
+                         (if p1-fights
+                             (mapconcat
+                              'identity
+                              (append p1-fights (list p2-id)) " ")
+                           p2-id))
           (org-entry-put p2pom "ELO" (number-to-string p2-new-elo))
-          (org-entry-put p2pom "ELO_FIGHTS" (if p2-fights
-                                                (mapconcat 'identity (append p2-fights (list p1-id)) " ")
-                                              p1-id))
+          (org-entry-put p2pom "ELO_FIGHTS"
+                         (if p2-fights
+                             (mapconcat
+                              'identity
+                              (append p2-fights (list p1-id)) " ")
+                           p1-id))
           (save-buffer)))))
   (org-elo-fight-revert))
 
@@ -234,7 +241,7 @@ shuffling is done in place."
            "*Org Elo fight")))
     (pop-to-buffer-same-window fight-buf)
     (with-current-buffer fight-buf
-      (setq inhibit-read-only t)      
+      (setq inhibit-read-only t)
       (org-elo-fight-mode)
       (setq-local org-elo-buf fight-buf)
       (org-elo-fight-revert))))
