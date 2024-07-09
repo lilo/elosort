@@ -223,7 +223,8 @@ shuffling is done in place."
     ; (insert (format "Is %s > %s?\n" p1-title p2-title))
     (insert-button p1-title 'action (lambda (_) (org-elo-fight-win1)))
     (insert " vs ")
-    (insert-button p2-title 'action (lambda (_) (org-elo-fight-win2)))))
+    (insert-button p2-title 'action (lambda (_) (org-elo-fight-win2)))
+    (insert " ")))
 
 (defun org-elo-fight ()
   "fight."
