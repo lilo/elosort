@@ -44,8 +44,16 @@
 
 (defun org-elo-compare-tabulated (item1 item2)
   "Compare tabulated items by rating"
-  (let ((elo1 (pcase item1 (`(,id ,_) (let-alist id .elo))))
-        (elo2 (pcase item2 (`(,id ,_) (let-alist id .elo)))))
+  (let ((elo1
+         (pcase
+             item1
+           (`(,tabulated-id ,_)
+            (let-alist tabulated-id .elo))))
+        (elo2
+         (pcase
+             item2
+           (`(,tabulated-id ,_)
+            (let-alist tabulated-id .elo)))))
     (< elo1 elo2)))
 
 (define-derived-mode org-elo-list-top-mode tabulated-list-mode "Elo Top"
