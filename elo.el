@@ -257,7 +257,6 @@ shuffling is done in place."
     (setq-local org-elo-p1 p1)
     (setq-local org-elo-p2 p2)
     (delete-region (point-min) (point-max))
-    ; (insert (format "Is %s > %s?\n" p1-title p2-title))
     (insert-button p1-title 'action (lambda (_) (org-elo-fight-win1)))
     (insert " vs ")
     (insert-button p2-title 'action (lambda (_) (org-elo-fight-win2)))
