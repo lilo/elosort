@@ -48,8 +48,8 @@
           (org-entry-get-multivalued-property pom "ELO_FIGHTS"))
          (plist-numfights ;; sum values in plist
           (cl-loop
-           for n from 2 to (length plist-fights) by 2
-           sum (string-to-number (nth (1- n) plist-fights)))))
+           for n from 1 to (length plist-fights) by 2
+           sum (string-to-number (nth n plist-fights)))))
     `((elo . ,(if (stringp elo) (string-to-number elo) org-elo-starting-elo))
       (title . ,title)
       (fights . ,plist-fights)
