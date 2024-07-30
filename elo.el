@@ -226,17 +226,18 @@ shuffling is done in place."
                   (< (let-alist a .num-fights)
                      (let-alist b .num-fights)))))
          (p1 (car sorted))
-         (p1-id (let-alist p1 .id))
+         (p1-title (let-alist p1 .title))
          (but-p1 (cdr sorted))
-         (p2 (car (sort but-p1
-                        (lambda (a b)
-                          (let* ((afs (let-alist a
-                                       (cl-count
-                                        p1-id .fights :test #'string-equal)))
-                                 (bfs (let-alist b
-                                        (cl-count
-                                         p1-id .fights :test #'string-equal))))
-                            (< afs bfs)))))))
+         (p2 (car
+              (sort but-p1
+                    (lambda (a b)
+                      (let* ((afs
+                              (string-to-number
+                               (or (plist-get (let-alist a .fights) p1-title #'equal) "0")))
+                             (bfs
+                              (string-to-number
+                               (or (plist-get (let-alist b .fights) p1-title #'equal) "0"))))
+                        (< afs bfs)))))))
     (cons p1 p2)))
 
 (defun org-elo-fight-revert ()
