@@ -15,6 +15,20 @@
   :type '(file :must-match t)
   :group 'elo)
 
+(defun org-elo-get-by-title (title)
+  "Return POM of the heading with matching TITLE."
+  (cl-dolist (pt (org-map-entries #'point))
+    (when
+        (string-equal
+         title
+         (alist-get
+          "ITEM"
+          (org-entry-properties pt)
+          nil
+          nil
+          #'string-equal))
+      (cl-return pt))))
+
 (defun org-elo-compute-elo (winner loser)
   "Compute new elo for WINNER and LOSER using K."
   (let* ((k org-elo-k)
