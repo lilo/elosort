@@ -171,27 +171,25 @@ Set elo."
             (org-elo-compute-elo p2-elo p1-elo)))
          (p1-new-elo (if p1-winner-p (car new-elos) (cdr new-elos)))
          (p2-new-elo (if p1-winner-p (cdr new-elos) (car new-elos)))
-         (p1-fights (plist-put p1-fights p2-title
+         (p1-new-fights (plist-put p1-fights p2-title
                                (number-to-string p2-vs-p1-num) #'equal))
-         (p2-fights (plist-put p2-fights p1-title
+         (p2-new-fights (plist-put p2-fights p1-title
                                (number-to-string p1-vs-p2-num) #'equal)))
     (save-excursion
       (with-current-buffer (find-file-noselect org-elo-file)
-        (let* ((p1pom (org-elo-get-by-title p1-title))
-               (p2pom (org-elo-get-by-title p2-title)))
-          (org-entry-put p1pom "ELO" (number-to-string p1-new-elo))
-          (org-entry-put p2pom "ELO" (number-to-string p2-new-elo))
-          (org-entry-delete p1pom "ELO_FIGHTS")
-          (org-entry-delete p2pom "ELO_FIGHTS")
-          (apply `(org-entry-put-multivalued-property
-                   ,p1pom
-                   "ELO_FIGHTS"
-                   ,@p1-fights))
-          (apply `(org-entry-put-multivalued-property
-                   ,p2pom
-                   "ELO_FIGHTS"
-                   ,@p2-fights))
-          (save-buffer))))
+        (org-entry-put (org-elo-get-by-title p1-title) "ELO" (number-to-string p1-new-elo))
+        (org-entry-put (org-elo-get-by-title p2-title) "ELO" (number-to-string p2-new-elo))
+        (org-entry-delete (org-elo-get-by-title p1-title) "ELO_FIGHTS")
+        (org-entry-delete (org-elo-get-by-title p2-title) "ELO_FIGHTS")
+        (apply `(org-entry-put-multivalued-property
+                 ,(org-elo-get-by-title p1-title)
+                 "ELO_FIGHTS"
+                 ,@p1-new-fights))
+        (apply `(org-entry-put-multivalued-property
+                 ,(org-elo-get-by-title p2-title)
+                 "ELO_FIGHTS"
+                 ,@p2-new-fights))
+        (save-buffer)))
   (org-elo-fight-revert)))
 
 (define-derived-mode org-elo-fight-mode special-mode "org-elo-fight-mode"
