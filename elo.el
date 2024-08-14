@@ -103,6 +103,7 @@
 
 (defun org-elo-list-top-refresh ()
   "Refresh elo top."
+  (interactive)
   (let* ((entries
           (save-excursion
             (with-current-buffer (find-file-noselect org-elo-file)
