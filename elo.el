@@ -36,7 +36,7 @@
          (w (+ winner (* k (- 1 p1))))
          (p2 (/ 1.0 (+ 1.0 (expt 10 (/ (- winner loser) 400.0)))))
          (l (+ loser (* k (- 0 p2)))))
-    (cons w l)))
+    (cons (round w) (round l))))
 
 (defun org-elo-get-alist ()
   "Current entry as alist."
