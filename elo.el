@@ -70,7 +70,6 @@
             (let-alist tabulated-id .elo)))))
     (< elo1 elo2)))
 
-(define-derived-mode org-elo-list-top-mode tabulated-list-mode "Elo Top"
 (defvar org-elo-list-top-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") #'org-elo-list-top-refresh)
@@ -78,6 +77,7 @@
     map)
   "Org-elo scoreboard mode keymap.")
 
+(define-derived-mode org-elo-list-top-mode tabulated-list-mode "org-elo-list-top-mode"
   "Elo Top"
   (setq truncate-lines t)
   (setq buffer-read-only t)
