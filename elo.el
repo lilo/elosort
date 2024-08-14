@@ -72,7 +72,6 @@
 
 (defvar org-elo-list-top-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "g") #'org-elo-list-top-refresh)
     (define-key map (kbd "f") #'org-elo-fight)
     map)
   "Org-elo scoreboard mode keymap.")
