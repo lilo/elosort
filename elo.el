@@ -71,6 +71,13 @@
     (< elo1 elo2)))
 
 (define-derived-mode org-elo-list-top-mode tabulated-list-mode "Elo Top"
+(defvar org-elo-list-top-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "g") #'org-elo-list-top-refresh)
+    (define-key map (kbd "f") #'org-elo-fight)
+    map)
+  "Org-elo scoreboard mode keymap.")
+
   "Elo Top"
   (setq truncate-lines t)
   (setq buffer-read-only t)
@@ -104,13 +111,6 @@
     (setq tabulated-list-entries entries)
     (tabulated-list-init-header)
     (tabulated-list-print)))
-
-(defvar org-elo-list-top-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "g") #'org-elo-list-top-refresh)
-    (define-key map (kbd "f") #'org-elo-fight)
-    map)
-  "Org-elo scoreboard mode keymap.")
 
 (defun org-elo-tabulate (alist)
   "Item alist as tabulated-list entry."
