@@ -10,10 +10,8 @@
   "Starting elo."
   :group 'elo)
 
-(defcustom org-elo-file nil
-  "File with the list of contenders."
-  :type '(file :must-match t)
-  :group 'elo)
+(defvar org-elo-file nil
+  "The DB file.")
 
 (defun org-elo-get-by-title (title)
   "Return POM of the heading with matching TITLE."
@@ -72,7 +70,7 @@
 
 (defvar org-elo-list-top-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "f") #'org-elo-fight)
+    (define-key map (kbd "f") #'org-elo-fight-from-top)
     map)
   "Org-elo scoreboard mode keymap.")
 
@@ -89,15 +87,16 @@
 
 (put 'org-elo-list-top-mode 'mode-class 'special)
 
-(defun org-elo-list-top ()
+(defun org-elo-list-top (filename)
   "Display the score board."
-  (interactive)
+  (interactive "fSelect file: ")
   (let ((elo-buf
          (get-buffer-create
-           "*Org Elo Top")))
+           "*Org Elo Top*")))
     (switch-to-buffer elo-buf)
     (org-elo-list-top-mode)
     (setq-local elo-source-buffer elo-buf)
+    (setq org-elo-file filename)
     (org-elo-list-top-refresh)))
 
 (defun org-elo-list-top-refresh ()
@@ -122,14 +121,18 @@
       (list .title)
       (list (number-to-string .num-fights))))))
 
+(defun org-elo-list-top-from-fight ()
+  "Call from fight mode providing `org-elo-file' as argument"
+  (interactive)
+  (org-elo-list-top org-elo-file))
+
 
 (defvar org-elo-fight-mode-map
   (let ((map (make-sparse-keymap)))
-    ;; (define-key map (kbd "RET") #'org-elo-fight-win1)
     (define-key map (kbd ",") #'org-elo-fight-win1)
     (define-key map (kbd ".") #'org-elo-fight-win2)
     (define-key map (kbd "g") #'org-elo-fight-revert)
-    (define-key map (kbd "t") #'org-elo-list-top)
+    (define-key map (kbd "t") #'org-elo-list-top-from-fight)
     map)
   "Fight mode keymap.")
 
@@ -144,8 +147,7 @@
   (org-elo-fight-update nil))
 
 (defun org-elo-fight-update (p1-winner-p)
-  "Update records for current pair.
-Set elo."
+  "Update ratings DB for current pair."
   (let* ((p1 (copy-alist org-elo-p1))
          (p2 (copy-alist org-elo-p2))
          (p1-title (let-alist p1 .title))
@@ -241,7 +243,7 @@ shuffling is done in place."
     (cons p1 p2)))
 
 (defun org-elo-fight-revert ()
-  "Refresh buffer, get next candidates."
+  "Refresh buffer, get next pair."
   (interactive)
   (save-excursion
     (with-current-buffer (find-file-noselect org-elo-file)
@@ -262,9 +264,11 @@ shuffling is done in place."
     (insert-button p2-title 'action (lambda (_) (org-elo-fight-win2)))
     (insert " ")))
 
-(defun org-elo-fight ()
-  "fight."
-  (interactive)
+
+
+(defun org-elo-fight (filename)
+  "Start competition."
+  (interactive "fSelect file: ")
   (let ((fight-buf
          (get-buffer-create
            "*Org Elo fight")))
@@ -273,6 +277,34 @@ shuffling is done in place."
       (setq inhibit-read-only t)
       (org-elo-fight-mode)
       (setq-local org-elo-buf fight-buf)
+      (setq org-elo-file filename)
       (org-elo-fight-revert))))
+
+(defun org-elo-fight-from-top ()
+  "Call from fight mode providing filename"
+  (interactive)
+  (org-elo-fight org-elo-file))
+
+(defun org-elo-fight-revert ()
+  "Refresh buffer, get next candidates."
+  (interactive)
+  (save-excursion
+    (with-current-buffer (find-file-noselect org-elo-file)
+      (setq entries (shuffle (org-map-entries #'org-elo-get-alist)))))
+  (let* ((inhibit-read-only t)
+         (pair (org-elo-next-pair entries))
+         (p1 (car pair))
+         (p1-elo (let-alist p1 .elo))
+         (p1-title (let-alist p1 .title))
+         (p2 (cdr pair))
+         (p2-elo (let-alist p2 .elo))
+         (p2-title (let-alist p2 .title)))
+    (setq-local org-elo-p1 p1)
+    (setq-local org-elo-p2 p2)
+    (delete-region (point-min) (point-max))
+    (insert-button p1-title 'action (lambda (_) (org-elo-fight-win1)))
+    (insert " vs ")
+    (insert-button p2-title 'action (lambda (_) (org-elo-fight-win2)))
+    (insert " ")))
 
 (provide 'org-elo)
