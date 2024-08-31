@@ -1,16 +1,14 @@
-* org-elo
+* Elosort
 ** Overview
-Org-elo  is an  Emacs extension  that helps  you to  sort a  set which
+Elosort  is an  Emacs extension  that helps  you to  sort a  set which
 elements aren't sortable with "usual" commutative comparison.
 
 The extension associates  an Elo-rating for each element  and lets you
 set a  "competition" between  elements. You pick  a "winner"  from the
-given pair and org-elo updates the ratings accordingly.
+given pair and Elosort updates the ratings accordingly.
 
 ** Installation
-TODO: load the library
-
-Create a org-file containing a list of elements.
+Create org-mode file containing a list of elements.
 
 #+begin_src org :eval no
 * apple
@@ -22,19 +20,8 @@ Create a org-file containing a list of elements.
 #+end_src
 
 
-Assing org-id for each element:
-#+begin_src emacs-lisp :eval no
-(org-map-entries #'org-id-get-create)
-#+end_src
-
-And point customizable variable ~org-elo-file~ to that file:
-#+begin_src emacs-lisp :eval no
-(customize-group 'elo)
-#+end_src
-
-Start the competition with ~org-elo-fight~.
-See the scoreboard with ~org-elo-list-top~.
-
+Start the competition with ~elosort-fight~.
+See the scoreboard with ~elosort-list-top~.
 
 ** Notes
 Finally you can compare apples and oranges!
