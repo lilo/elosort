@@ -320,27 +320,5 @@ shuffling is done in place."
   (interactive)
   (elosort-fight elosort-file))
 
-(defun elosort-fight-revert ()
-  "Refresh buffer, get next candidates."
-  (interactive)
-  (save-excursion
-    (with-current-buffer (find-file-noselect elosort-file)
-      (setq entries (shuffle (org-map-entries #'elosort-get-alist)))))
-  (let* ((inhibit-read-only t)
-         (pair (elosort-next-pair entries))
-         (p1 (car pair))
-         (p1-elo (let-alist p1 .elo))
-         (p1-title (let-alist p1 .title))
-         (p2 (cdr pair))
-         (p2-elo (let-alist p2 .elo))
-         (p2-title (let-alist p2 .title)))
-    (setq-local elosort-p1 p1)
-    (setq-local elosort-p2 p2)
-    (delete-region (point-min) (point-max))
-    (insert-button p1-title 'action (lambda (_) (elosort-fight-win1)))
-    (insert " vs ")
-    (insert-button p2-title 'action (lambda (_) (elosort-fight-win2)))
-    (insert " ")))
-
 (provide 'elosort)
 ;;; elo.el ends here
