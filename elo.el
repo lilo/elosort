@@ -48,6 +48,14 @@
 (defvar elosort-file nil
   "The DB file.")
 
+(defun elosort-get-question ()
+  "Return property `elosort_question' from the file."
+  (when-let ((elosort-question (alist-get
+   "ELOSORT_QUESTION"
+   (org-collect-keywords '("elosort_question"))
+   nil nil #'equal)))
+    (car elosort-question)))
+
 (defun elosort-get-by-title (title)
   "Return POM of the heading with matching TITLE."
   (cl-dolist (pt (org-map-entries #'point))
@@ -282,6 +290,7 @@ shuffling is done in place."
   (interactive)
   (save-excursion
     (with-current-buffer (find-file-noselect elosort-file)
+      (setq elosort-question (elosort-get-question))
       (setq entries (shuffle (org-map-entries #'elosort-get-alist)))))
   (let* ((inhibit-read-only t)
          (pair (elosort-next-pair entries))
@@ -294,11 +303,12 @@ shuffling is done in place."
     (setq-local elosort-p1 p1)
     (setq-local elosort-p2 p2)
     (delete-region (point-min) (point-max))
+    (when elosort-question
+      (insert (format "%s\n" elosort-question)))
     (insert-button p1-title 'action (lambda (_) (elosort-fight-win1)))
     (insert " vs ")
     (insert-button p2-title 'action (lambda (_) (elosort-fight-win2)))
     (insert " ")))
-
 
 
 (defun elosort-fight (filename)
