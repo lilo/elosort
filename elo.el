@@ -29,7 +29,7 @@
 ;; * pears
 ;; * ...
 ;;
-;; Run elosort with {M-x elosort-fight} and select the file.
+;; Run elosort with {M-x elosort-fight RET} and select the file.
 ;;
 ;; You can learn more about Elo here:
 ;; https://en.wikipedia.org/wiki/Elo_rating_system
