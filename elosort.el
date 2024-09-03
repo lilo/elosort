@@ -24,6 +24,7 @@
 ;;; Commentary:
 ;;
 ;; 1. Prepare file with list of things in org-mode format:
+;; #+elosort_question: What is tastier?
 ;; * apples
 ;; * oranges
 ;; * pears

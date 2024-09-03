@@ -11,6 +11,7 @@ given pair and Elosort updates the ratings accordingly.
 Create org-mode file containing a list of elements.
 
 #+begin_src org :eval no
+#+elosort_question: What is tastier?
 * apple
 * orange
 * banana
@@ -18,7 +19,6 @@ Create org-mode file containing a list of elements.
 * pear
 * lemon
 #+end_src
-
 
 Start the competition with ~elosort-fight~.
 See the scoreboard with ~elosort-list-top~.
