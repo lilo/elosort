@@ -1,10 +1,10 @@
-;;; elo.el --- Sort a list of incomparable things  -*- lexical-binding: t; -*-
+;;; elosort.el --- Sort a list of incomparable things  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 Sergey Lilo
 ;; Author: Sergey Lilo <s3rg31110@gmail.com>
 ;; Created: 14 Apr 2024
 ;; Keywords: games
-;; URL: https://github.com/lilo/elo.el
+;; URL: https://github.com/lilo/elosort.el
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -331,4 +331,4 @@ shuffling is done in place."
   (elosort-fight elosort-file))
 
 (provide 'elosort)
-;;; elo.el ends here
+;;; elosort.el ends here
