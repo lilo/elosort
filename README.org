@@ -30,6 +30,13 @@ Number of comparisons required for calculating adequate rating list is
 proportional to square of the number of elements.
 
 TODO: progress bar, multiple lists, graphics support, proper packaging
+** Screenshots
+#+CAPTION: Exaple of `elosort-fight' window
+[[./elosort-fight.jpg]]
+
+#+CAPTION: Exaple of `elosort-list-top' window
+[[./elosort-list-top.jpg]]
+
 
 Crafted  manually without  LLM, Copilot  or any  other "AI"-assitaints
 involved.
