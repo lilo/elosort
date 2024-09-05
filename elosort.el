@@ -51,10 +51,14 @@
 
 (defun elosort-get-question ()
   "Return property `elosort_question' from the file."
-  (when-let ((elosort-question (alist-get
-   "ELOSORT_QUESTION"
-   (org-collect-keywords '("elosort_question"))
-   nil nil #'equal)))
+  (when-let
+      ((elosort-question
+        (alist-get
+         "ELOSORT_QUESTION"
+         (org-collect-keywords '("elosort_question"))
+         (not 'default)
+         (not 'remove)
+         #'equal)))
     (car elosort-question)))
 
 (defun elosort-get-by-title (title)
@@ -66,8 +70,8 @@
          (alist-get
           "ITEM"
           (org-entry-properties pt)
-          nil
-          nil
+          (not 'default)
+          (not 'remove)
           #'string-equal))
       (cl-return pt))))
 
@@ -127,7 +131,7 @@
                                ("num_games" 16 t)])
   (setq tabulated-list-sort-key
         (cons "rating" :inverted))
-  (add-hook 'tabulated-list-revert-hook #'elosort-list-top-refresh nil t))
+  (add-hook 'tabulated-list-revert-hook #'elosort-list-top-refresh (not 'depth) :local))
 
 (put 'elosort-list-top-mode 'mode-class 'special)
 
@@ -183,12 +187,12 @@
 (defun elosort-fight-win1 ()
   "Set p1 as winner and update"
   (interactive)
-  (elosort-fight-update t))
+  (elosort-fight-update :p1-win))
 
 (defun elosort-fight-win2 ()
   "Set p2 as winner and update"
   (interactive)
-  (elosort-fight-update nil))
+  (elosort-fight-update (not :p1-win)))
 
 (defun elosort-fight-update (p1-winner-p)
   "Update ratings DB for current pair."
