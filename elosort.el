@@ -4,7 +4,7 @@
 ;; Author: Sergey Lilo <s3rg31110@gmail.com>
 ;; Created: 14 Apr 2024
 ;; Keywords: games
-;; URL: https://github.com/lilo/elosort.el
+;; URL: https://github.com/lilo/elosort
 
 ;; This file is NOT part of GNU Emacs.
 
