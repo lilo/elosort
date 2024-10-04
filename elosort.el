@@ -331,7 +331,7 @@ shuffling is done in place."
       (elosort-fight-revert))))
 
 (defun elosort-fight-from-top ()
-  "Call from fight mode providing filename"
+  "Call from elosort-top mode providing filename"
   (interactive)
   (elosort-fight elosort-file))
 
